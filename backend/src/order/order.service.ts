@@ -1,4 +1,10 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  BadRequestException,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { IFilmsRepository } from '../repository/films.repository.interface';
 import {
   CreateOrderDto,
@@ -7,6 +13,7 @@ import {
   TicketDto,
 } from './dto/order.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { ScheduleItemDto } from '../films/dto/films.dto';
 
 @Injectable()
 export class OrderService {
@@ -18,6 +25,7 @@ export class OrderService {
   async createOrder(createOrderDto: CreateOrderDto): Promise<OrderResponseDto> {
     const { email, phone, tickets } = createOrderDto;
 
+    // Валидация входных данных
     if (!tickets || tickets.length === 0) {
       throw new BadRequestException('No tickets provided');
     }
@@ -30,19 +38,39 @@ export class OrderService {
       throw new BadRequestException('Invalid phone format');
     }
 
-    const results: TicketWithIdDto[] = [];
-
     const groupedTickets = this.groupTicketsByFilmAndSession(tickets);
 
+    const filmIds = Array.from(groupedTickets.keys());
+    const allFilms = await this.filmsRepository.findAll();
+
+    const filmsMap = new Map<string, any>();
+    allFilms.forEach((film) => {
+      if (filmIds.includes(film.id)) {
+        const sessionsMap = new Map<string, ScheduleItemDto>();
+        film.schedule.forEach((session) => {
+          sessionsMap.set(session.id, session);
+        });
+        filmsMap.set(film.id, {
+          ...film,
+          sessionsMap,
+        });
+      }
+    });
+
+    const results: TicketWithIdDto[] = [];
+
     for (const [filmId, sessions] of groupedTickets) {
+      const film = filmsMap.get(filmId);
+
+      if (!film) {
+        throw new NotFoundException(`Film ${filmId} not found`);
+      }
+
       for (const [sessionId, sessionTickets] of sessions) {
-        const session = await this.filmsRepository.findSession(
-          filmId,
-          sessionId,
-        );
+        const session = film.sessionsMap.get(sessionId);
 
         if (!session) {
-          throw new BadRequestException(
+          throw new NotFoundException(
             `Session ${sessionId} not found for film ${filmId}`,
           );
         }
@@ -68,10 +96,8 @@ export class OrderService {
         );
 
         try {
-          // Бронируем места
           await this.filmsRepository.reserveSeats(filmId, sessionId, seats);
 
-          // Создаем результат для каждого билета
           sessionTickets.forEach((ticket) => {
             const responseTicket: TicketWithIdDto = {
               id: this.generateOrderId(),
@@ -85,9 +111,23 @@ export class OrderService {
             results.push(responseTicket);
           });
         } catch (error) {
-          throw new BadRequestException(
-            `Failed to reserve seats: ${error.message}`,
-          );
+          // Преобразуем обычные ошибки в HTTP-исключения
+          const errorMessage = error.message;
+
+          if (errorMessage.includes('not found')) {
+            throw new NotFoundException(errorMessage);
+          } else if (errorMessage.includes('already taken')) {
+            throw new ConflictException(errorMessage); // 409 для занятых мест
+          } else if (
+            errorMessage.includes('out of range') ||
+            errorMessage.includes('Invalid seat format')
+          ) {
+            throw new BadRequestException(errorMessage);
+          } else {
+            throw new BadRequestException(
+              `Failed to reserve seats: ${errorMessage}`,
+            );
+          }
         }
       }
     }

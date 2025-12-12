@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FilmDto, ScheduleItemDto } from '../films/dto/films.dto';
 import { IFilmsRepository } from './films.repository.interface';
 
@@ -45,18 +45,18 @@ export class FilmsInMemoryRepository implements IFilmsRepository {
   ): Promise<boolean> {
     const film = this.films.find((f) => f.id === filmId);
     if (!film) {
-      throw new BadRequestException(`Film with id ${filmId} not found`);
+      throw new Error(`Film with id ${filmId} not found`);
     }
 
     const scheduleItem = film.schedule.find((item) => item.id === scheduleId);
     if (!scheduleItem) {
-      throw new BadRequestException(`Schedule with id ${scheduleId} not found`);
+      throw new Error(`Schedule with id ${scheduleId} not found`);
     }
 
     // Проверяем каждое место
     for (const seat of seats) {
       if (scheduleItem.taken.includes(seat)) {
-        throw new BadRequestException(`Seat ${seat} is already taken`);
+        throw new Error(`Seat ${seat} is already taken`);
       }
 
       // Проверяем существование ряда и места
@@ -67,7 +67,7 @@ export class FilmsInMemoryRepository implements IFilmsRepository {
         seatNum < 1 ||
         seatNum > scheduleItem.seats
       ) {
-        throw new BadRequestException(`Seat ${seat} is out of range`);
+        throw new Error(`Seat ${seat} is out of range`);
       }
     }
 

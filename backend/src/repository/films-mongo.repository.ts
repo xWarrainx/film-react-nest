@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Film } from '../films/film.schema';
@@ -22,7 +18,7 @@ export class FilmsMongoRepository implements IFilmsRepository {
     const film = await this.filmModel.findById(filmId).exec();
 
     if (!film) {
-      throw new NotFoundException(`Film with id ${filmId} not found`);
+      throw new Error(`Film with id ${filmId} not found`);
     }
 
     return film.schedule.map((item) => ({
@@ -44,22 +40,22 @@ export class FilmsMongoRepository implements IFilmsRepository {
   ): Promise<boolean> {
     const film = await this.filmModel.findById(filmId).exec();
     if (!film) {
-      throw new BadRequestException(`Film with id ${filmId} not found`);
+      throw new Error(`Film with id ${filmId} not found`);
     }
 
     const scheduleItem = film.schedule.find((item) => item.id === scheduleId);
     if (!scheduleItem) {
-      throw new BadRequestException(`Schedule with id ${scheduleId} not found`);
+      throw new Error(`Schedule with id ${scheduleId} not found`);
     }
 
     // Проверяем каждое место
     for (const seat of seats) {
       if (!this.isValidSeatFormat(seat)) {
-        throw new BadRequestException(`Invalid seat format: ${seat}`);
+        throw new Error(`Invalid seat format: ${seat}`);
       }
 
       if (scheduleItem.taken.includes(seat)) {
-        throw new BadRequestException(`Seat ${seat} is already taken`);
+        throw new Error(`Seat ${seat} is already taken`);
       }
 
       const [row, seatNum] = seat.split(':').map(Number);
@@ -69,7 +65,7 @@ export class FilmsMongoRepository implements IFilmsRepository {
         seatNum < 1 ||
         seatNum > scheduleItem.seats
       ) {
-        throw new BadRequestException(`Seat ${seat} is out of range`);
+        throw new Error(`Seat ${seat} is out of range`);
       }
     }
 
@@ -91,7 +87,7 @@ export class FilmsMongoRepository implements IFilmsRepository {
     const scheduleWithFilmId = filmObj.schedule.map((item) => ({
       ...item,
       film: filmObj.id,
-      hall: item.hall.toString(),
+      hall: item.hall,
     }));
 
     return {
