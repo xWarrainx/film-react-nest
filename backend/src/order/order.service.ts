@@ -73,10 +73,16 @@ export class OrderService {
 
           // Создаем результат для каждого билета
           sessionTickets.forEach((ticket) => {
-            results.push({
-              ...ticket,
+            const responseTicket: TicketWithIdDto = {
               id: this.generateOrderId(),
-            });
+              film: ticket.film,
+              session: ticket.session,
+              daytime: ticket.daytime,
+              row: ticket.row,
+              seat: ticket.seat,
+              price: ticket.price,
+            };
+            results.push(responseTicket);
           });
         } catch (error) {
           throw new BadRequestException(

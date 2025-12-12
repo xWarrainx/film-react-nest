@@ -2,7 +2,7 @@ export class ScheduleItemDto {
   id: string;
   film: string;
   daytime: string;
-  hall: string;
+  hall: number;
   rows: number;
   seats: number;
   price: number;

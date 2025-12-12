@@ -34,7 +34,7 @@ export class FilmsInMemoryRepository implements IFilmsRepository {
     return {
       ...session,
       film: filmId,
-      hall: session.hall.toString(),
+      hall: session.hall,
     };
   }
 
