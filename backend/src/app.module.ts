@@ -30,6 +30,7 @@ import { Film, FilmSchema } from './films/film.schema';
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', 'public', 'content', 'afisha'),
       serveRoot: '/content/afisha',
+      exclude: ['/api/*'],
     }),
   ],
   controllers: [FilmsController, OrderController],
