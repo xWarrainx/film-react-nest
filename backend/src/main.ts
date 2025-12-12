@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -14,10 +13,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-
-  app.useStaticAssets(join(__dirname, '..', 'public', 'content', 'afisha'), {
-    prefix: '/content/afisha/',
-  });
 
   app.setGlobalPrefix('api/afisha');
 

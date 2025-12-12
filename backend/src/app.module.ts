@@ -28,7 +28,7 @@ import { Film, FilmSchema } from './films/film.schema';
     }),
     MongooseModule.forFeature([{ name: Film.name, schema: FilmSchema }]),
     ServeStaticModule.forRoot({
-      rootPath: path.join(__dirname, '..', 'public'),
+      rootPath: path.join(__dirname, '..', 'public', 'content', 'afisha'),
       serveRoot: '/content/afisha',
     }),
   ],
