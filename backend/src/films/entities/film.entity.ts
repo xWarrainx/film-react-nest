@@ -1,10 +1,4 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  OneToMany,
-  CreateDateColumn,
-} from 'typeorm';
+import { Entity, Column, PrimaryColumn, OneToMany } from 'typeorm';
 import { Schedule } from './schedule.entity';
 
 @Entity('films')
@@ -12,36 +6,30 @@ export class FilmEntity {
   @PrimaryColumn('uuid')
   id: string;
 
-  @Column('decimal', { precision: 3, scale: 1 })
+  @Column('decimal', { precision: 3, scale: 1, name: 'rating' })
   rating: number;
 
-  @Column()
+  @Column({ name: 'director' })
   director: string;
 
-  @Column('simple-array')
-  tags: string[];
+  @Column('text', { name: 'tags' })
+  tags: string;
 
-  @Column()
-  title: string;
-
-  @Column('text')
-  about: string;
-
-  @Column('text')
-  description: string;
-
-  @Column()
+  @Column({ name: 'image' })
   image: string;
 
-  @Column()
+  @Column({ name: 'cover' })
   cover: string;
 
-  @OneToMany(() => Schedule, (schedule) => schedule.film, {
-    cascade: true,
-    eager: false,
-  })
-  schedule: Schedule[];
+  @Column({ name: 'title' })
+  title: string;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @Column('text', { name: 'about' })
+  about: string;
+
+  @Column('text', { name: 'description' })
+  description: string;
+
+  @OneToMany(() => Schedule, (schedule) => schedule.film)
+  schedule: Schedule[];
 }

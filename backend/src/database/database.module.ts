@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FilmEntity } from '../films/entities/film.entity';
 import { Schedule } from '../films/entities/schedule.entity';
-import { OrderEntity } from '../order/entities/order.entity';
 
 @Module({
   imports: [
@@ -21,14 +20,14 @@ import { OrderEntity } from '../order/entities/order.entity';
           database: isTest
             ? configService.get('DATABASE_NAME_TEST', 'afisha_test')
             : configService.get('DATABASE_NAME', 'afisha'),
-          entities: [FilmEntity, Schedule, OrderEntity],
+          entities: [FilmEntity, Schedule],
           synchronize: false,
           logging: configService.get('NODE_ENV') === 'development',
         };
       },
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([FilmEntity, Schedule, OrderEntity]),
+    TypeOrmModule.forFeature([FilmEntity, Schedule]),
   ],
   exports: [TypeOrmModule],
 })

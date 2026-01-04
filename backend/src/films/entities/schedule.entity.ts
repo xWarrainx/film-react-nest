@@ -1,46 +1,35 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { FilmEntity } from './film.entity';
-import { OrderEntity } from '../../order/entities/order.entity';
 
-@Entity('schedule')
+@Entity('schedules')
 export class Schedule {
   @PrimaryColumn('uuid')
   id: string;
 
-  @Column({ name: 'film_id' })
+  @Column({ name: 'filmId' })
   filmId: string;
 
   @ManyToOne(() => FilmEntity, (film) => film.schedule, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'film_id' })
+  @JoinColumn({ name: 'filmId' })
   film: FilmEntity;
 
-  @Column({ type: 'timestamptz' })
-  daytime: Date;
+  @Column('varchar', { name: 'daytime' })
+  daytime: string;
 
-  @Column('int')
+  @Column('int', { name: 'hall' })
   hall: number;
 
-  @Column('int')
+  @Column('int', { name: 'rows' })
   rows: number;
 
-  @Column('int')
+  @Column('int', { name: 'seats' })
   seats: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, name: 'price' })
   price: number;
 
-  @Column('jsonb', { nullable: true, default: () => "'[]'" })
-  taken: string[];
-
-  @OneToMany(() => OrderEntity, (order) => order.session)
-  orders: OrderEntity[];
+  @Column('text', { name: 'taken' })
+  taken: string;
 }

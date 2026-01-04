@@ -23,7 +23,7 @@ export class FilmsPostgresRepository implements IFilmsRepository {
       },
     });
 
-    return films.map(this.mapFilmToDto);
+    return films.map((film) => this.mapFilmToDto(film));
   }
 
   async findSchedule(filmId: string): Promise<ScheduleItemDto[]> {
@@ -36,7 +36,7 @@ export class FilmsPostgresRepository implements IFilmsRepository {
       throw new Error(`Film with id ${filmId} not found`);
     }
 
-    return film.schedule.map(this.mapScheduleToDto);
+    return film.schedule.map((schedule) => this.mapScheduleToDto(schedule));
   }
 
   async reserveSeats(
@@ -45,7 +45,7 @@ export class FilmsPostgresRepository implements IFilmsRepository {
     seats: string[],
   ): Promise<boolean> {
     try {
-      // Получаем сеанс с блокировкой для безопасного обновления
+      // Получаем сеанс
       const session = await this.scheduleRepository.findOne({
         where: { id: scheduleId, filmId },
       });
@@ -54,8 +54,9 @@ export class FilmsPostgresRepository implements IFilmsRepository {
         throw new Error(`Session ${scheduleId} not found for film ${filmId}`);
       }
 
-      // Проверяем каждое место
-      const takenSet = new Set(session.taken || []);
+      // Получаем текущие занятые места из строки
+      const currentTaken = this.parseTakenString(session.taken);
+      const takenSet = new Set(currentTaken);
       const errors: string[] = [];
 
       for (const seat of seats) {
@@ -88,7 +89,10 @@ export class FilmsPostgresRepository implements IFilmsRepository {
         throw new Error(errors.join(', '));
       }
 
-      session.taken = [...(session.taken || []), ...seats];
+      // Обновляем занятые места - соединяем строки через запятую
+      const newTaken = [...currentTaken, ...seats];
+      session.taken = newTaken.join(',');
+
       await this.scheduleRepository.save(session);
 
       return true;
@@ -113,31 +117,39 @@ export class FilmsPostgresRepository implements IFilmsRepository {
     return this.mapScheduleToDto(session);
   }
 
-  private mapFilmToDto = (film: FilmEntity): FilmDto => {
+  private parseTakenString(taken: string): string[] {
+    if (!taken || taken.trim() === '') {
+      return [];
+    }
+    return taken.split(',').filter((seat) => seat.trim() !== '');
+  }
+
+  private mapFilmToDto(film: FilmEntity): FilmDto {
     return {
       id: film.id,
       rating: Number(film.rating),
       director: film.director,
-      tags: film.tags,
+      tags: film.tags.split(','),
       image: film.image,
       cover: film.cover,
       title: film.title,
       about: film.about,
       description: film.description,
-      schedule: film.schedule?.map(this.mapScheduleToDto) || [],
+      schedule:
+        film.schedule?.map((schedule) => this.mapScheduleToDto(schedule)) || [],
     };
-  };
+  }
 
-  private mapScheduleToDto = (schedule: Schedule): ScheduleItemDto => {
+  private mapScheduleToDto(schedule: Schedule): ScheduleItemDto {
     return {
       id: schedule.id,
       film: schedule.filmId,
-      daytime: schedule.daytime.toISOString(),
+      daytime: schedule.daytime,
       hall: schedule.hall,
       rows: schedule.rows,
       seats: schedule.seats,
       price: Number(schedule.price),
-      taken: schedule.taken || [],
+      taken: this.parseTakenString(schedule.taken),
     };
-  };
+  }
 }

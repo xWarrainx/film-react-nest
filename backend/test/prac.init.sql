@@ -1,47 +1,40 @@
--- Таблица фильмов
-CREATE TABLE films (
-    id VARCHAR(36) PRIMARY KEY,
-    rating DECIMAL(3,1),
-    director VARCHAR(255),
-    tags TEXT[],
-    title VARCHAR(255),
-    about TEXT,
-    description TEXT,
-    image VARCHAR(255),
-    cover VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+
+
+create table public.films
+(
+    id          uuid default uuid_generate_v4() not null
+        constraint "PK_697487ada088902377482c970d1"
+            primary key,
+    rating      double precision                not null,
+    director    varchar                         not null,
+    tags        text                            not null,
+    image       varchar                         not null,
+    cover       varchar                         not null,
+    title       varchar                         not null,
+    about       varchar                         not null,
+    description varchar                         not null
 );
 
--- Таблица расписания
-CREATE TABLE schedule (
-    id VARCHAR(36) PRIMARY KEY,
-    film_id VARCHAR(36) REFERENCES films(id) ON DELETE CASCADE,
-    daytime TIMESTAMP WITH TIME ZONE NOT NULL,
-    hall INTEGER,
-    rows INTEGER,
-    seats INTEGER,
-    price DECIMAL(10,2),
-    taken TEXT[],
-    CONSTRAINT valid_hall CHECK (hall >= 0 AND hall <= 2),
-    CONSTRAINT valid_price CHECK (price > 0)
+alter table public.films
+    owner to prac;
+
+create table public.schedules
+(
+    id       uuid default uuid_generate_v4() not null
+        constraint "PK_7e33fc2ea755a5765e3564e66dd"
+            primary key,
+    daytime  varchar                         not null,
+    hall     integer                         not null,
+    rows     integer                         not null,
+    seats    integer                         not null,
+    price    double precision                not null,
+    taken    text                            not null,
+    "filmId" uuid
+        constraint "FK_1c2f5e637713a429f4854024a76"
+            references public.films
 );
 
--- Таблица заказов
-CREATE TABLE orders (
-    id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) NOT NULL,
-    phone VARCHAR(50) NOT NULL,
-    film_id VARCHAR(36) REFERENCES films(id),
-    session_id VARCHAR(36) REFERENCES schedule(id),
-    row INTEGER,
-    seat INTEGER,
-    price DECIMAL(10,2),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT valid_seat CHECK (row > 0 AND seat > 0)
-);
-
--- Индексы для ускорения поиска
-CREATE INDEX idx_schedule_film_id ON schedule(film_id);
-CREATE INDEX idx_schedule_daytime ON schedule(daytime);
-CREATE INDEX idx_orders_film_id ON orders(film_id);
-CREATE INDEX idx_orders_session_id ON orders(session_id);
+alter table public.schedules
+    owner to prac;
