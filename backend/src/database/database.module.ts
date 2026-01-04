@@ -11,13 +11,16 @@ import { OrderEntity } from '../order/entities/order.entity';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         console.log('Using PostgreSQL database...');
+        const isTest = configService.get('NODE_ENV') === 'test';
         return {
           type: 'postgres',
           host: configService.get('DATABASE_HOST', 'localhost'),
           port: configService.get('DATABASE_PORT', 5432),
           username: configService.get('DATABASE_USERNAME', 'postgres'),
           password: configService.get('DATABASE_PASSWORD', 'postgres'),
-          database: configService.get('DATABASE_NAME', 'afisha'),
+          database: isTest
+            ? configService.get('DATABASE_NAME_TEST', 'afisha_test')
+            : configService.get('DATABASE_NAME', 'afisha'),
           entities: [FilmEntity, Schedule, OrderEntity],
           synchronize: false,
           logging: configService.get('NODE_ENV') === 'development',
