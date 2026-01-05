@@ -12,7 +12,7 @@ import {
   TicketWithIdDto,
   TicketDto,
 } from './dto/order.dto';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { ScheduleItemDto } from '../films/dto/films.dto';
 
 @Injectable()
@@ -160,7 +160,7 @@ export class OrderService {
   }
 
   private generateOrderId(): string {
-    return 'urn:uuid:' + uuidv4();
+    return 'urn:uuid:' + randomUUID();
   }
 
   private isValidEmail(email: string): boolean {
