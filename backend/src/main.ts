@@ -2,6 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
+
+if (typeof crypto === 'undefined' || !crypto.randomUUID) {
+  (global as any).crypto = {
+    randomUUID: () => uuidv4(),
+  };
+}
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
