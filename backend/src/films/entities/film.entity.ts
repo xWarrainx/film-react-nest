@@ -12,8 +12,8 @@ export class FilmEntity {
   @Column({ name: 'director' })
   director: string;
 
-  @Column('text', { name: 'tags' })
-  tags: string;
+  @Column('text', { array: true })
+  tags: string[];
 
   @Column({ name: 'image' })
   image: string;

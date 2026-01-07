@@ -5,6 +5,7 @@ import { IFilmsRepository } from './films.repository.interface';
 import { FilmEntity } from '../films/entities/film.entity';
 import { Schedule } from '../films/entities/schedule.entity';
 import { FilmDto, ScheduleItemDto } from '../films/dto/films.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class FilmsPostgresRepository implements IFilmsRepository {
@@ -23,7 +24,56 @@ export class FilmsPostgresRepository implements IFilmsRepository {
       },
     });
 
-    return films.map((film) => this.mapFilmToDto(film));
+    return plainToInstance(
+      FilmDto,
+      films.map((film) => this.mapFilmToPlain(film)),
+      { excludeExtraneousValues: true },
+    );
+  }
+
+  private mapFilmToPlain(film: FilmEntity): any {
+    return {
+      id: film.id,
+      rating: Number(film.rating),
+      director: film.director,
+      tags: film.tags || [],
+      image: film.image,
+      cover: film.cover,
+      title: film.title,
+      about: film.about,
+      description: film.description,
+      schedule:
+        film.schedule?.map((schedule) => this.mapScheduleToPlain(schedule)) ||
+        [],
+    };
+  }
+
+  private mapScheduleToPlain(schedule: Schedule): any {
+    return {
+      id: schedule.id,
+      film: schedule.filmId,
+      daytime: schedule.daytime,
+      hall: schedule.hall,
+      rows: schedule.rows,
+      seats: schedule.seats,
+      price: Number(schedule.price),
+      taken: schedule.taken || [],
+    };
+  }
+
+  // Общая функция для нормализации массива
+  private normalizeArray(arr: any): string[] {
+    if (Array.isArray(arr)) {
+      return arr.filter(
+        (item) => item != null && item.toString().trim() !== '',
+      );
+    }
+
+    if (typeof arr === 'string') {
+      return arr.split(',').filter((item) => item.trim() !== '');
+    }
+
+    return [];
   }
 
   async findSchedule(filmId: string): Promise<ScheduleItemDto[]> {
@@ -36,7 +86,11 @@ export class FilmsPostgresRepository implements IFilmsRepository {
       throw new Error(`Film with id ${filmId} not found`);
     }
 
-    return film.schedule.map((schedule) => this.mapScheduleToDto(schedule));
+    return plainToInstance(
+      ScheduleItemDto,
+      film.schedule.map((schedule) => this.mapScheduleToPlain(schedule)),
+      { excludeExtraneousValues: true },
+    );
   }
 
   async reserveSeats(
@@ -54,8 +108,8 @@ export class FilmsPostgresRepository implements IFilmsRepository {
         throw new Error(`Session ${scheduleId} not found for film ${filmId}`);
       }
 
-      // Получаем текущие занятые места из строки
-      const currentTaken = this.parseTakenString(session.taken);
+      // Получаем текущие занятые места (уже массив)
+      const currentTaken = this.normalizeArray(session.taken);
       const takenSet = new Set(currentTaken);
       const errors: string[] = [];
 
@@ -89,10 +143,8 @@ export class FilmsPostgresRepository implements IFilmsRepository {
         throw new Error(errors.join(', '));
       }
 
-      // Обновляем занятые места - соединяем строки через запятую
-      const newTaken = [...currentTaken, ...seats];
-      session.taken = newTaken.join(',');
-
+      // Обновляем занятые места - объединяем массивы
+      session.taken = [...currentTaken, ...seats];
       await this.scheduleRepository.save(session);
 
       return true;
@@ -114,42 +166,8 @@ export class FilmsPostgresRepository implements IFilmsRepository {
       return null;
     }
 
-    return this.mapScheduleToDto(session);
-  }
-
-  private parseTakenString(taken: string): string[] {
-    if (!taken || taken.trim() === '') {
-      return [];
-    }
-    return taken.split(',').filter((seat) => seat.trim() !== '');
-  }
-
-  private mapFilmToDto(film: FilmEntity): FilmDto {
-    return {
-      id: film.id,
-      rating: Number(film.rating),
-      director: film.director,
-      tags: film.tags.split(','),
-      image: film.image,
-      cover: film.cover,
-      title: film.title,
-      about: film.about,
-      description: film.description,
-      schedule:
-        film.schedule?.map((schedule) => this.mapScheduleToDto(schedule)) || [],
-    };
-  }
-
-  private mapScheduleToDto(schedule: Schedule): ScheduleItemDto {
-    return {
-      id: schedule.id,
-      film: schedule.filmId,
-      daytime: schedule.daytime,
-      hall: schedule.hall,
-      rows: schedule.rows,
-      seats: schedule.seats,
-      price: Number(schedule.price),
-      taken: this.parseTakenString(schedule.taken),
-    };
+    return plainToInstance(ScheduleItemDto, this.mapScheduleToPlain(session), {
+      excludeExtraneousValues: true,
+    });
   }
 }

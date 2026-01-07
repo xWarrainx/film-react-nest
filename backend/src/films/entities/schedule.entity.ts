@@ -30,6 +30,6 @@ export class Schedule {
   @Column('decimal', { precision: 10, scale: 2, name: 'price' })
   price: number;
 
-  @Column('text', { name: 'taken' })
-  taken: string;
+  @Column('text', { array: true })
+  taken: string[];
 }
