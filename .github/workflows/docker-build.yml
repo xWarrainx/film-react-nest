@@ -1,0 +1,31 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Frontend
+        run: |
+          docker build -f docker/frontend/Dockerfile -t ghcr.io/${{ github.repository_owner }}/film-frontend:latest .
+          docker push ghcr.io/${{ github.repository_owner }}/film-frontend:latest
+
+      - name: Build Backend
+        run: |
+          docker build -f docker/backend/Dockerfile -t ghcr.io/${{ github.repository_owner }}/film-backend:latest .
+          docker push ghcr.io/${{ github.repository_owner }}/film-backend:latest
+
+      - name: Build Nginx
+        run: |
+          docker build -f docker/nginx/Dockerfile -t ghcr.io/${{ github.repository_owner }}/film-nginx:latest .
+          docker push ghcr.io/${{ github.repository_owner }}/film-nginx:latest
