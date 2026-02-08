@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
           context: .
           file: docker/frontend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/film-frontend:latest
+          tags: ghcr.io/xwarrainx/film-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -44,7 +44,7 @@ jobs:
           context: .
           file: docker/backend/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/film-backend:latest
+          tags: ghcr.io/xwarrainx/film-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -54,6 +54,6 @@ jobs:
           context: .
           file: docker/nginx/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/film-nginx:latest
+          tags: ghcr.io/xwarrainx/film-nginx:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
