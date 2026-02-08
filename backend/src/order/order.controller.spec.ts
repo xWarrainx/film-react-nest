@@ -1,7 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
-import { CreateOrderDto, OrderResponseDto, TicketDto, TicketWithIdDto } from './dto/order.dto';
+import {
+  CreateOrderDto,
+  OrderResponseDto,
+  TicketDto,
+  TicketWithIdDto,
+} from './dto/order.dto';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -114,9 +119,9 @@ describe('OrderController', () => {
       const errorMessage = 'No available seats';
       mockOrderService.createOrder.mockRejectedValue(new Error(errorMessage));
 
-      await expect(
-        controller.createOrder(mockCreateOrderDto),
-      ).rejects.toThrow(errorMessage);
+      await expect(controller.createOrder(mockCreateOrderDto)).rejects.toThrow(
+        errorMessage,
+      );
       expect(orderService.createOrder).toHaveBeenCalledWith(mockCreateOrderDto);
     });
 
@@ -173,7 +178,9 @@ describe('OrderController', () => {
         ],
       };
 
-      mockOrderService.createOrder.mockResolvedValue(responseWithOptionalFields);
+      mockOrderService.createOrder.mockResolvedValue(
+        responseWithOptionalFields,
+      );
 
       const result = await controller.createOrder(dtoWithOptionalFields);
 

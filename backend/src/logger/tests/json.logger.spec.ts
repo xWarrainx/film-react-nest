@@ -83,7 +83,9 @@ describe('JsonLogger', () => {
     let consoleInfoSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+      consoleDebugSpy = jest
+        .spyOn(console, 'debug')
+        .mockImplementation(() => {});
       consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
     });
 

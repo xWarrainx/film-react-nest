@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderService } from './order.service';
 import { IFilmsRepository } from '../repository/films.repository.interface';
-import { BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { CreateOrderDto, TicketDto } from './dto/order.dto';
 
 describe('OrderService', () => {
@@ -101,9 +105,9 @@ describe('OrderService', () => {
         tickets: [],
       };
 
-      await expect(service.createOrder(emptyTicketsDto))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(service.createOrder(emptyTicketsDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('должен выбрасывать BadRequestException для невалидного email', async () => {
@@ -113,9 +117,9 @@ describe('OrderService', () => {
         tickets: [mockTicketDto],
       };
 
-      await expect(service.createOrder(invalidEmailDto))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(service.createOrder(invalidEmailDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('должен выбрасывать BadRequestException для невалидного phone', async () => {
@@ -125,17 +129,17 @@ describe('OrderService', () => {
         tickets: [mockTicketDto],
       };
 
-      await expect(service.createOrder(invalidPhoneDto))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(service.createOrder(invalidPhoneDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('должен выбрасывать NotFoundException для несуществующего фильма', async () => {
       mockFilmsRepository.findAll.mockResolvedValue([]);
 
-      await expect(service.createOrder(mockCreateOrderDto))
-        .rejects
-        .toThrow(NotFoundException);
+      await expect(service.createOrder(mockCreateOrderDto)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('должен выбрасывать NotFoundException для несуществующего сеанса', async () => {
@@ -151,9 +155,9 @@ describe('OrderService', () => {
 
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
 
-      await expect(service.createOrder(dtoWithWrongSession))
-        .rejects
-        .toThrow(NotFoundException);
+      await expect(service.createOrder(dtoWithWrongSession)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('должен выбрасывать BadRequestException при несовпадении времени', async () => {
@@ -169,9 +173,9 @@ describe('OrderService', () => {
 
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
 
-      await expect(service.createOrder(dtoWithWrongDaytime))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(service.createOrder(dtoWithWrongDaytime)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('должен выбрасывать BadRequestException при несовпадении цены', async () => {
@@ -187,9 +191,9 @@ describe('OrderService', () => {
 
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
 
-      await expect(service.createOrder(dtoWithWrongPrice))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(service.createOrder(dtoWithWrongPrice)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('должен обрабатывать несколько билетов на один фильм и сеанс', async () => {
@@ -263,9 +267,9 @@ describe('OrderService', () => {
         new Error('Seat already taken'),
       );
 
-      await expect(service.createOrder(mockCreateOrderDto))
-        .rejects
-        .toThrow(ConflictException);
+      await expect(service.createOrder(mockCreateOrderDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('должен выбрасывать BadRequestException для невалидного формата места', async () => {
@@ -274,9 +278,9 @@ describe('OrderService', () => {
         new Error('Invalid seat format'),
       );
 
-      await expect(service.createOrder(mockCreateOrderDto))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(service.createOrder(mockCreateOrderDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('должен выбрасывать BadRequestException для места вне диапазона', async () => {
@@ -285,9 +289,9 @@ describe('OrderService', () => {
         new Error('Seat out of range'),
       );
 
-      await expect(service.createOrder(mockCreateOrderDto))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(service.createOrder(mockCreateOrderDto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -360,7 +364,9 @@ describe('OrderService', () => {
 
         const id = serviceAny.generateOrderId();
 
-        expect(id).toMatch(/^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+        expect(id).toMatch(
+          /^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+        );
       });
     });
   });

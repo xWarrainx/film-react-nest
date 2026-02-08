@@ -30,7 +30,7 @@ export class JsonLogger implements LoggerService {
     }
 
     // Удаляем undefined поля
-    Object.keys(logEntry).forEach(key => {
+    Object.keys(logEntry).forEach((key) => {
       if (logEntry[key] === undefined) {
         delete logEntry[key];
       }

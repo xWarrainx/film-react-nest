@@ -93,9 +93,13 @@ describe('FilmsService', () => {
     it('должен обрабатывать ошибки репозитория для расписания', async () => {
       const filmId = '1';
       const errorMessage = 'Film not found';
-      mockFilmsRepository.findSchedule.mockRejectedValue(new Error(errorMessage));
+      mockFilmsRepository.findSchedule.mockRejectedValue(
+        new Error(errorMessage),
+      );
 
-      await expect(service.getFilmSchedule(filmId)).rejects.toThrow(errorMessage);
+      await expect(service.getFilmSchedule(filmId)).rejects.toThrow(
+        errorMessage,
+      );
     });
   });
 });

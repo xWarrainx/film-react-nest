@@ -3,9 +3,14 @@ import { LoggerService } from '@nestjs/common';
 
 @Injectable()
 export class TskvLogger implements LoggerService {
-  private formatMessage(level: string, message: any, ...optionalParams: any[]): string {
+  private formatMessage(
+    level: string,
+    message: any,
+    ...optionalParams: any[]
+  ): string {
     const timestamp = new Date().toISOString();
-    const messageStr = typeof message === 'object' ? JSON.stringify(message) : String(message);
+    const messageStr =
+      typeof message === 'object' ? JSON.stringify(message) : String(message);
 
     const fields: Record<string, string> = {
       timestamp,
@@ -52,18 +57,26 @@ export class TskvLogger implements LoggerService {
   }
 
   error(message: any, ...optionalParams: any[]) {
-    process.stderr.write(this.formatMessage('ERROR', message, ...optionalParams));
+    process.stderr.write(
+      this.formatMessage('ERROR', message, ...optionalParams),
+    );
   }
 
   warn(message: any, ...optionalParams: any[]) {
-    process.stdout.write(this.formatMessage('WARN', message, ...optionalParams));
+    process.stdout.write(
+      this.formatMessage('WARN', message, ...optionalParams),
+    );
   }
 
   debug(message: any, ...optionalParams: any[]) {
-    process.stdout.write(this.formatMessage('DEBUG', message, ...optionalParams));
+    process.stdout.write(
+      this.formatMessage('DEBUG', message, ...optionalParams),
+    );
   }
 
   verbose(message: any, ...optionalParams: any[]) {
-    process.stdout.write(this.formatMessage('VERBOSE', message, ...optionalParams));
+    process.stdout.write(
+      this.formatMessage('VERBOSE', message, ...optionalParams),
+    );
   }
 }
