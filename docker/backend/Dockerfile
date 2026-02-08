@@ -1,4 +1,4 @@
-# Этап 1: Сборка
+# 1. Сборка
 FROM node:20-alpine AS builder
 
 WORKDIR /usr/src/app
@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 # Копируем package файлы
 COPY backend/package*.json ./
 
-# Устанавливаем зависимости (ВСЕ для сборки)
+# Устанавливаем зависимости (все для сборки)
 RUN npm ci
 
 # Копируем исходный код
@@ -15,7 +15,7 @@ COPY backend/ .
 # Собираем проект
 RUN npm run build
 
-# Этап 2: Продакшен
+# 2. Продакшен
 FROM node:20-alpine
 
 WORKDIR /usr/src/app
@@ -23,7 +23,7 @@ WORKDIR /usr/src/app
 # Копируем package файлы
 COPY backend/package*.json ./
 
-# Устанавливаем ТОЛЬКО продакшен зависимости
+# Устанавливаем только продакшен зависимости
 RUN npm ci --only=production
 
 # Копируем собранный код из builder

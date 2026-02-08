@@ -46,8 +46,8 @@ describe('JsonLogger', () => {
 
       expect(parsedLog.level).toBe('ERROR');
       expect(parsedLog.message).toBe('Error message');
-      expect(parsedLog.trace).toBe('Error trace'); // ВТОРОЙ параметр - trace
-      expect(parsedLog.context).toBe('ErrorContext'); // ТРЕТИЙ параметр - context
+      expect(parsedLog.trace).toBe('Error trace');
+      expect(parsedLog.context).toBe('ErrorContext');
     });
 
     it('should work with only message', () => {

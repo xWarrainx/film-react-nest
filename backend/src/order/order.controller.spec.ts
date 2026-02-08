@@ -59,19 +59,16 @@ describe('OrderController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it('должен быть определен', () => {
     expect(controller).toBeDefined();
   });
 
   describe('createOrder', () => {
-    it('should create order and return OrderResponseDto with 201 status', async () => {
-      // Arrange
+    it('должен создавать заказ и возвращать OrderResponseDto со статусом 201', async () => {
       mockOrderService.createOrder.mockResolvedValue(mockOrderResponse);
 
-      // Act
       const result = await controller.createOrder(mockCreateOrderDto);
 
-      // Assert
       expect(result).toEqual(mockOrderResponse);
       expect(result).toHaveProperty('total', 500);
       expect(result).toHaveProperty('items');
@@ -81,8 +78,7 @@ describe('OrderController', () => {
       expect(orderService.createOrder).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle multiple tickets', async () => {
-      // Arrange
+    it('должен обрабатывать несколько билетов', async () => {
       const multipleTicketsDto: CreateOrderDto = {
         email: 'group@example.com',
         phone: '+1234567890',
@@ -104,10 +100,8 @@ describe('OrderController', () => {
 
       mockOrderService.createOrder.mockResolvedValue(multipleTicketsResponse);
 
-      // Act
       const result = await controller.createOrder(multipleTicketsDto);
 
-      // Assert
       expect(result.total).toBe(1500);
       expect(result.items).toHaveLength(3);
       expect(result.items[0].seat).toBe(12);
@@ -116,26 +110,21 @@ describe('OrderController', () => {
       expect(orderService.createOrder).toHaveBeenCalledWith(multipleTicketsDto);
     });
 
-    it('should handle service errors properly', async () => {
-      // Arrange
+    it('должен корректно обрабатывать ошибки сервиса', async () => {
       const errorMessage = 'No available seats';
       mockOrderService.createOrder.mockRejectedValue(new Error(errorMessage));
 
-      // Act & Assert
       await expect(
         controller.createOrder(mockCreateOrderDto),
       ).rejects.toThrow(errorMessage);
       expect(orderService.createOrder).toHaveBeenCalledWith(mockCreateOrderDto);
     });
 
-    it('should validate required fields from DTO', async () => {
-      // Arrange
+    it('должен валидировать обязательные поля из DTO', async () => {
       mockOrderService.createOrder.mockResolvedValue(mockOrderResponse);
 
-      // Act
       await controller.createOrder(mockCreateOrderDto);
 
-      // Assert
       expect(orderService.createOrder).toHaveBeenCalledWith(
         expect.objectContaining({
           email: expect.stringMatching(/@/),
@@ -154,10 +143,9 @@ describe('OrderController', () => {
     });
   });
 
-  // Тесты на edge cases
-  describe('edge cases', () => {
-    it('should handle optional day and time fields in tickets', async () => {
-      // Arrange
+  // Тесты на граничные случаи
+  describe('граничные случаи', () => {
+    it('должен обрабатывать необязательные поля day и time в билетах', async () => {
       const ticketWithOptionalFields: TicketDto = {
         film: 'Inception',
         session: 'evening',
@@ -187,16 +175,13 @@ describe('OrderController', () => {
 
       mockOrderService.createOrder.mockResolvedValue(responseWithOptionalFields);
 
-      // Act
       const result = await controller.createOrder(dtoWithOptionalFields);
 
-      // Assert
       expect(result.items[0]).toHaveProperty('day', '2024-01-01');
       expect(result.items[0]).toHaveProperty('time', '18:00');
     });
 
-    it('should handle empty tickets array from service', async () => {
-      // Arrange
+    it('должен обрабатывать пустой массив билетов от сервиса', async () => {
       const emptyResponse: OrderResponseDto = {
         total: 0,
         items: [],
@@ -204,10 +189,8 @@ describe('OrderController', () => {
 
       mockOrderService.createOrder.mockResolvedValue(emptyResponse);
 
-      // Act
       const result = await controller.createOrder(mockCreateOrderDto);
 
-      // Assert
       expect(result.total).toBe(0);
       expect(result.items).toHaveLength(0);
     });

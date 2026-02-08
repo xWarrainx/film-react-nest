@@ -31,23 +31,20 @@ describe('FilmsController', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it('должен быть определен', () => {
     expect(controller).toBeDefined();
   });
 
   describe('getAllFilms', () => {
-    it('should return films with total count', async () => {
-      // Arrange
+    it('должен возвращать фильмы с общим количеством', async () => {
       const mockFilms = [
         { id: 1, title: 'Film 1', description: 'Desc 1' },
         { id: 2, title: 'Film 2', description: 'Desc 2' },
       ];
       mockFilmsService.getAllFilms.mockResolvedValue(mockFilms);
 
-      // Act
       const result = await controller.getAllFilms();
 
-      // Assert
       expect(result).toEqual({
         total: 2,
         items: mockFilms,
@@ -55,14 +52,11 @@ describe('FilmsController', () => {
       expect(filmsService.getAllFilms).toHaveBeenCalledTimes(1);
     });
 
-    it('should return empty array if no films', async () => {
-      // Arrange
+    it('должен возвращать пустой массив, если фильмов нет', async () => {
       mockFilmsService.getAllFilms.mockResolvedValue([]);
 
-      // Act
       const result = await controller.getAllFilms();
 
-      // Assert
       expect(result).toEqual({
         total: 0,
         items: [],
@@ -71,8 +65,7 @@ describe('FilmsController', () => {
   });
 
   describe('getFilmSchedule', () => {
-    it('should return schedule with total count', async () => {
-      // Arrange
+    it('должен возвращать расписание с общим количеством', async () => {
       const filmId = '1';
       const mockSchedule = [
         { id: 1, time: '10:00', price: 500 },
@@ -80,10 +73,8 @@ describe('FilmsController', () => {
       ];
       mockFilmsService.getFilmSchedule.mockResolvedValue(mockSchedule);
 
-      // Act
       const result = await controller.getFilmSchedule(filmId);
 
-      // Assert
       expect(result).toEqual({
         total: 2,
         items: mockSchedule,
@@ -91,17 +82,14 @@ describe('FilmsController', () => {
       expect(filmsService.getFilmSchedule).toHaveBeenCalledWith(filmId);
     });
 
-    it('should handle errors and return empty response', async () => {
-      // Arrange
+    it('должен обрабатывать ошибки и возвращать пустой ответ', async () => {
       const filmId = '999';
       mockFilmsService.getFilmSchedule.mockRejectedValue(
         new Error('Film not found'),
       );
 
-      // Act
       const result = await controller.getFilmSchedule(filmId);
 
-      // Assert
       expect(result).toEqual({
         total: 0,
         items: [],
@@ -109,15 +97,12 @@ describe('FilmsController', () => {
       expect(filmsService.getFilmSchedule).toHaveBeenCalledWith(filmId);
     });
 
-    it('should return empty array if service returns empty', async () => {
-      // Arrange
+    it('должен возвращать пустой массив, если сервис возвращает пустой массив', async () => {
       const filmId = '1';
       mockFilmsService.getFilmSchedule.mockResolvedValue([]);
 
-      // Act
       const result = await controller.getFilmSchedule(filmId);
 
-      // Assert
       expect(result).toEqual({
         total: 0,
         items: [],

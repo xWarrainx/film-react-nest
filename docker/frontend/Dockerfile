@@ -1,4 +1,4 @@
-# Этап 1: Сборка
+# 1. Сборка
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -12,7 +12,7 @@ RUN npm ci
 # Копируем исходный код
 COPY frontend/ .
 
-#  УДАЛЯЕМ .env если он есть (чтобы не перекрывал .env.production)
+#  Удаляем .env если он есть (чтобы не перекрывал .env.production)
 RUN rm -f .env 2>/dev/null || true
 
 #  Устанавливаем production режим
@@ -21,7 +21,7 @@ ENV NODE_ENV=production
 # Собираем проект
 RUN npm run build
 
-# Этап 2: Продакшен (только dist в volume)
+# 2. Продакшен (только dist в volume)
 FROM alpine:latest
 
 WORKDIR /app

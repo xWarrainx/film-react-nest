@@ -7,8 +7,6 @@ describe('DevLogger', () => {
     logger = new DevLogger('TestContext');
   });
 
-  // DevLogger использует ConsoleLogger, который сложно тестировать через console.spy
-  // Вместо этого тестируем, что методы существуют и работают без ошибок
   describe('instance', () => {
     it('should be defined', () => {
       expect(logger).toBeDefined();

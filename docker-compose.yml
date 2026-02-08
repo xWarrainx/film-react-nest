@@ -1,5 +1,5 @@
 services:
-  # PostgreSQL - ПУСТАЯ база
+  # PostgreSQL - пустая база
   postgres:
     image: postgres:15-alpine
     container_name: film-postgres
@@ -55,7 +55,7 @@ services:
     image: ghcr.io/xwarrainx/film-nginx:latest
     container_name: film-nginx
     ports:
-      - "80:80"  # фронтенд
+      - "80:80"
     depends_on:
       - frontend
       - backend

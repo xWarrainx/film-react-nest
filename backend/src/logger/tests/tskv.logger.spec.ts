@@ -38,7 +38,6 @@ describe('TskvLogger', () => {
 
       // Проверяем экранирование
       expect(logOutput).toContain('message=Message with\\ttab\\nand newline');
-      // В TSKV табы используются как разделители, поэтому они будут в выводе
     });
 
     it('should handle object messages', () => {
@@ -62,8 +61,8 @@ describe('TskvLogger', () => {
 
       expect(logOutput).toContain('level=ERROR');
       expect(logOutput).toContain('message=Error message');
-      expect(logOutput).toContain('trace=Stack trace'); // ВТОРОЙ параметр
-      expect(logOutput).toContain('context=ErrorContext'); // ТРЕТИЙ параметр
+      expect(logOutput).toContain('trace=Stack trace');
+      expect(logOutput).toContain('context=ErrorContext');
     });
 
     it('should work without trace and context', () => {

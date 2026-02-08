@@ -68,20 +68,17 @@ describe('OrderService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it('должен быть определен', () => {
     expect(service).toBeDefined();
   });
 
   describe('createOrder', () => {
-    it('should create order successfully', async () => {
-      // Arrange
+    it('должен успешно создавать заказ', async () => {
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
       mockFilmsRepository.reserveSeats.mockResolvedValue(undefined);
 
-      // Act
       const result = await service.createOrder(mockCreateOrderDto);
 
-      // Assert
       expect(result).toHaveProperty('total', 1);
       expect(result).toHaveProperty('items');
       expect(result.items).toHaveLength(1);
@@ -97,60 +94,51 @@ describe('OrderService', () => {
       );
     });
 
-    it('should throw BadRequestException for empty tickets', async () => {
-      // Arrange
+    it('должен выбрасывать BadRequestException дял пустого списка билетов', async () => {
       const emptyTicketsDto: CreateOrderDto = {
         email: 'test@example.com',
         phone: '+1234567890',
         tickets: [],
       };
 
-      // Act & Assert
       await expect(service.createOrder(emptyTicketsDto))
         .rejects
         .toThrow(BadRequestException);
     });
 
-    it('should throw BadRequestException for invalid email', async () => {
-      // Arrange
+    it('должен выбрасывать BadRequestException для невалидного email', async () => {
       const invalidEmailDto: CreateOrderDto = {
         email: 'invalid-email',
         phone: '+1234567890',
         tickets: [mockTicketDto],
       };
 
-      // Act & Assert
       await expect(service.createOrder(invalidEmailDto))
         .rejects
         .toThrow(BadRequestException);
     });
 
-    it('should throw BadRequestException for invalid phone', async () => {
-      // Arrange
+    it('должен выбрасывать BadRequestException для невалидного phone', async () => {
       const invalidPhoneDto: CreateOrderDto = {
         email: 'test@example.com',
-        phone: '123', // слишком короткий
+        phone: '123',
         tickets: [mockTicketDto],
       };
 
-      // Act & Assert
       await expect(service.createOrder(invalidPhoneDto))
         .rejects
         .toThrow(BadRequestException);
     });
 
-    it('should throw NotFoundException for non-existent film', async () => {
-      // Arrange
+    it('должен выбрасывать NotFoundException для несуществующего фильма', async () => {
       mockFilmsRepository.findAll.mockResolvedValue([]);
 
-      // Act & Assert
       await expect(service.createOrder(mockCreateOrderDto))
         .rejects
         .toThrow(NotFoundException);
     });
 
-    it('should throw NotFoundException for non-existent session', async () => {
-      // Arrange
+    it('должен выбрасывать NotFoundException для несуществующего сеанса', async () => {
       const ticketWithWrongSession: TicketDto = {
         ...mockTicketDto,
         session: 'non-existent-session',
@@ -163,17 +151,15 @@ describe('OrderService', () => {
 
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
 
-      // Act & Assert
       await expect(service.createOrder(dtoWithWrongSession))
         .rejects
         .toThrow(NotFoundException);
     });
 
-    it('should throw BadRequestException for daytime mismatch', async () => {
-      // Arrange
+    it('должен выбрасывать BadRequestException при несовпадении времени', async () => {
       const ticketWithWrongDaytime: TicketDto = {
         ...mockTicketDto,
-        daytime: '20:00', // не совпадает с сеансом
+        daytime: '20:00',
       };
 
       const dtoWithWrongDaytime: CreateOrderDto = {
@@ -183,17 +169,15 @@ describe('OrderService', () => {
 
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
 
-      // Act & Assert
       await expect(service.createOrder(dtoWithWrongDaytime))
         .rejects
         .toThrow(BadRequestException);
     });
 
-    it('should throw BadRequestException for price mismatch', async () => {
-      // Arrange
+    it('должен выбрасывать BadRequestException при несовпадении цены', async () => {
       const ticketWithWrongPrice: TicketDto = {
         ...mockTicketDto,
-        price: 600, // не совпадает с ценой сеанса
+        price: 600,
       };
 
       const dtoWithWrongPrice: CreateOrderDto = {
@@ -203,14 +187,12 @@ describe('OrderService', () => {
 
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
 
-      // Act & Assert
       await expect(service.createOrder(dtoWithWrongPrice))
         .rejects
         .toThrow(BadRequestException);
     });
 
-    it('should handle multiple tickets for same film and session', async () => {
-      // Arrange
+    it('должен обрабатывать несколько билетов на один фильм и сеанс', async () => {
       const multipleTicketsDto: CreateOrderDto = {
         email: 'group@example.com',
         phone: '+1234567890',
@@ -224,10 +206,8 @@ describe('OrderService', () => {
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
       mockFilmsRepository.reserveSeats.mockResolvedValue(undefined);
 
-      // Act
       const result = await service.createOrder(multipleTicketsDto);
 
-      // Assert
       expect(result.total).toBe(3);
       expect(result.items).toHaveLength(3);
       expect(filmsRepository.reserveSeats).toHaveBeenCalledWith(
@@ -237,8 +217,7 @@ describe('OrderService', () => {
       );
     });
 
-    it('should handle multiple films and sessions', async () => {
-      // Arrange
+    it('должен обрабатывать несколько фильмов и сеансов', async () => {
       const mockFilm2 = {
         id: 'film-2',
         title: 'Interstellar',
@@ -269,67 +248,59 @@ describe('OrderService', () => {
 
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm, mockFilm2]);
       mockFilmsRepository.reserveSeats
-        .mockResolvedValueOnce(undefined) // для film-1
-        .mockResolvedValueOnce(undefined); // для film-2
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined);
 
-      // Act
       const result = await service.createOrder(ticketsForMultipleFilms);
 
-      // Assert
       expect(result.total).toBe(2);
       expect(filmsRepository.reserveSeats).toHaveBeenCalledTimes(2);
     });
 
-    it('should throw ConflictException for already taken seats', async () => {
-      // Arrange
+    it('должен выбрасывать ConflictException для уже занятых мест', async () => {
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
       mockFilmsRepository.reserveSeats.mockRejectedValue(
         new Error('Seat already taken'),
       );
 
-      // Act & Assert
       await expect(service.createOrder(mockCreateOrderDto))
         .rejects
         .toThrow(ConflictException);
     });
 
-    it('should throw BadRequestException for invalid seat format', async () => {
-      // Arrange
+    it('должен выбрасывать BadRequestException для невалидного формата места', async () => {
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
       mockFilmsRepository.reserveSeats.mockRejectedValue(
         new Error('Invalid seat format'),
       );
 
-      // Act & Assert
       await expect(service.createOrder(mockCreateOrderDto))
         .rejects
         .toThrow(BadRequestException);
     });
 
-    it('should throw NotFoundException for seat out of range', async () => {
-      // Arrange
+    it('должен выбрасывать BadRequestException для места вне диапазона', async () => {
       mockFilmsRepository.findAll.mockResolvedValue([mockFilm]);
       mockFilmsRepository.reserveSeats.mockRejectedValue(
         new Error('Seat out of range'),
       );
 
-      // Act & Assert
       await expect(service.createOrder(mockCreateOrderDto))
         .rejects
         .toThrow(BadRequestException);
     });
   });
 
-  describe('private methods', () => {
+  describe('приватные методы', () => {
     describe('isValidEmail', () => {
-      it('should validate correct emails', () => {
+      it('должен валидировать корректные email', () => {
         const serviceAny = service as any;
 
         expect(serviceAny.isValidEmail('test@example.com')).toBe(true);
         expect(serviceAny.isValidEmail('user.name@domain.co.uk')).toBe(true);
       });
 
-      it('should reject invalid emails', () => {
+      it('должен отклонять невалидные email', () => {
         const serviceAny = service as any;
 
         expect(serviceAny.isValidEmail('invalid-email')).toBe(false);
@@ -339,7 +310,7 @@ describe('OrderService', () => {
     });
 
     describe('isValidPhone', () => {
-      it('should validate phones with at least 10 characters', () => {
+      it('должен валидировать телефоны длиной не менее 10 символов', () => {
         const serviceAny = service as any;
 
         expect(serviceAny.isValidPhone('+1234567890')).toBe(true);
@@ -347,7 +318,7 @@ describe('OrderService', () => {
         expect(serviceAny.isValidPhone('+1 (234) 567-890')).toBe(true);
       });
 
-      it('should reject phones shorter than 10 characters', () => {
+      it('должен отклонять телефоны короче 10 символов', () => {
         const serviceAny = service as any;
 
         expect(serviceAny.isValidPhone('123')).toBe(false);
@@ -356,7 +327,7 @@ describe('OrderService', () => {
     });
 
     describe('groupTicketsByFilmAndSession', () => {
-      it('should group tickets correctly', () => {
+      it('должен правильно группировать билеты', () => {
         const serviceAny = service as any;
 
         const tickets: TicketDto[] = [
@@ -368,11 +339,11 @@ describe('OrderService', () => {
 
         const result = serviceAny.groupTicketsByFilmAndSession(tickets);
 
-        expect(result.size).toBe(2); // 2 фильма
+        expect(result.size).toBe(2);
 
         // film-1
         const film1Group = result.get('film-1');
-        expect(film1Group.size).toBe(2); // 2 сеанса
+        expect(film1Group.size).toBe(2);
         expect(film1Group.get('session-1')).toHaveLength(2);
         expect(film1Group.get('session-2')).toHaveLength(1);
 
@@ -384,7 +355,7 @@ describe('OrderService', () => {
     });
 
     describe('generateOrderId', () => {
-      it('should generate UUID with urn:uuid prefix', () => {
+      it('должен генерировать UUID с префиксом urn:uuid', () => {
         const serviceAny = service as any;
 
         const id = serviceAny.generateOrderId();

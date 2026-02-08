@@ -16,7 +16,6 @@ export class JsonLogger implements LoggerService {
     // - Для других методов: первый параметр - context
     if (optionalParams.length > 0) {
       if (level === 'ERROR') {
-        // Для error: optionalParams[0] = trace, optionalParams[1] = context
         if (optionalParams[0]) {
           logEntry.trace = optionalParams[0];
         }
@@ -24,7 +23,6 @@ export class JsonLogger implements LoggerService {
           logEntry.context = optionalParams[1];
         }
       } else {
-        // Для других методов: optionalParams[0] = context
         if (optionalParams[0]) {
           logEntry.context = optionalParams[0];
         }

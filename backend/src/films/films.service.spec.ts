@@ -32,51 +32,42 @@ describe('FilmsService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it('должен быть определен', () => {
     expect(service).toBeDefined();
   });
 
   describe('getAllFilms', () => {
-    it('should return all films from repository', async () => {
-      // Arrange
+    it('должен возвращать все фильмы из репозитория', async () => {
       const mockFilms = [
         { id: '1', title: 'Film 1', schedule: [] },
         { id: '2', title: 'Film 2', schedule: [] },
       ];
       mockFilmsRepository.findAll.mockResolvedValue(mockFilms);
 
-      // Act
       const result = await service.getAllFilms();
 
-      // Assert
       expect(result).toEqual(mockFilms);
       expect(filmsRepository.findAll).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle empty result from repository', async () => {
-      // Arrange
+    it('должен обрабатывать пустой результат из репозитория', async () => {
       mockFilmsRepository.findAll.mockResolvedValue([]);
 
-      // Act
       const result = await service.getAllFilms();
 
-      // Assert
       expect(result).toEqual([]);
     });
 
-    it('should propagate repository errors', async () => {
-      // Arrange
+    it('должен пробрасывать ошибки репозитория', async () => {
       const errorMessage = 'Database error';
       mockFilmsRepository.findAll.mockRejectedValue(new Error(errorMessage));
 
-      // Act & Assert
       await expect(service.getAllFilms()).rejects.toThrow(errorMessage);
     });
   });
 
   describe('getFilmSchedule', () => {
-    it('should return schedule for film', async () => {
-      // Arrange
+    it('должен возвращать расписание для фильма', async () => {
       const filmId = '1';
       const mockSchedule = [
         { id: 's1', time: '10:00', price: 500 },
@@ -84,33 +75,26 @@ describe('FilmsService', () => {
       ];
       mockFilmsRepository.findSchedule.mockResolvedValue(mockSchedule);
 
-      // Act
       const result = await service.getFilmSchedule(filmId);
 
-      // Assert
       expect(result).toEqual(mockSchedule);
       expect(filmsRepository.findSchedule).toHaveBeenCalledWith(filmId);
     });
 
-    it('should handle film not found', async () => {
-      // Arrange
+    it('должен обрабатывать ситуацию, когда фильм не найден', async () => {
       const filmId = '999';
       mockFilmsRepository.findSchedule.mockResolvedValue([]);
 
-      // Act
       const result = await service.getFilmSchedule(filmId);
 
-      // Assert
       expect(result).toEqual([]);
     });
 
-    it('should handle repository errors for schedule', async () => {
-      // Arrange
+    it('должен обрабатывать ошибки репозитория для расписания', async () => {
       const filmId = '1';
       const errorMessage = 'Film not found';
       mockFilmsRepository.findSchedule.mockRejectedValue(new Error(errorMessage));
 
-      // Act & Assert
       await expect(service.getFilmSchedule(filmId)).rejects.toThrow(errorMessage);
     });
   });
