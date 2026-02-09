@@ -48,8 +48,8 @@ http://localhost:8080 - pgAdmin
 Деплой проекта:
 
 Проект развернут на Yandex Cloud и доступен по адресу:
-- Веб-сайт: http://89.169.185.116
-- API: http://89.169.185.116/api/afisha
-- Админка БД (PgAdmin): http://89.169.185.116:8080
+- Веб-сайт: http://warrain.nomorepartiessbs.ru/
+- API: http://warrain.nomorepartiessbs.ru/api/afisha
+- Админка БД (PgAdmin): warrain.nomorepartiessbs.ru/8080
   - Логин: `admin@admin.com`
   - Пароль: `admin`
