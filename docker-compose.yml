@@ -1,0 +1,90 @@
+services:
+  # PostgreSQL - пустая база
+  postgres:
+    image: postgres:15-alpine
+    container_name: film-postgres
+    environment:
+      POSTGRES_DB: prac
+      POSTGRES_USER: prac
+      POSTGRES_PASSWORD: prac
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - film-network
+
+  # Бэкенд
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    image: ghcr.io/xwarrainx/film-backend:latest
+    container_name: film-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: prac
+      DB_PASSWORD: prac
+      DB_DATABASE: prac
+    depends_on:
+      - postgres
+    networks:
+      - film-network
+
+  # Фронтенд
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        - VITE_API_URL=/api/afisha
+        - VITE_CDN_URL=/content/afisha
+    image: ghcr.io/xwarrainx/film-frontend:latest
+    container_name: film-frontend
+    networks:
+      - film-network
+    volumes:
+      - frontend-dist:/app/dist
+
+  # Nginx
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    image: ghcr.io/xwarrainx/film-nginx:latest
+    container_name: film-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - frontend-dist:/usr/share/nginx/html:ro
+    networks:
+      - film-network
+
+  # PgAdmin
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: film-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - film-network
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  frontend-dist:
+
+networks:
+  film-network:
+    driver: bridge
